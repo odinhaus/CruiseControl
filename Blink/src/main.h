@@ -33,6 +33,7 @@
  };
 
  // prototypes
+ void run(struct State *state);
  void getClockTime(struct State *state);
  void getUserInput(struct State *state);
  void setOutputs(struct State *state);
@@ -45,6 +46,14 @@
  step createTap(int offset);
  step createTouch(int offset, int duration);
  struct State* initialize(unsigned int clockPrescaler, unsigned long clockSpeed);
+
+ void run(struct State *state)
+ {
+	 getClockTime(state);
+	 getUserInput(state);
+	 execute(state);
+	 setOutputs(state);
+ }
 
  void initializeState(struct State *state, unsigned int clockPrescaler, unsigned long clockSpeed)
  {

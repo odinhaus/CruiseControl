@@ -18,14 +18,11 @@ int main (void)
 	
 	while(true)
 	{
-		getClockTime(state);
-		getUserInput(state);
-		execute(state);
-		setOutputs(state);
+		run(state);
 	}
 }
 
-
+// called from initialize
 void initializeControlRegisters(void)
 {
 	// Configure the LED port PB
@@ -45,13 +42,13 @@ void initializeControlRegisters(void)
 	//PORTD |= 1 << PIND0;
 	PORTB |= 1 << PINB0;
 }
-
+//called from initialize
 void initializeTapSequences(struct State *state)
 {
 	initialize1sBlinkSequence(state);
 	//initializeHuracanPSSequence(state);
 }
-
+// called from run
 void getUserInput(struct State *state)
 {
 	if ((PINB & 1) == 0)
@@ -63,7 +60,7 @@ void getUserInput(struct State *state)
 		state->IsPressed_StartButton = false;
 	}
 }
-
+// called from run
 void execute(struct State *state)
 {
 	int s = 0;
@@ -151,7 +148,7 @@ void execute(struct State *state)
 		}
 	}
 }
-
+// called from run
 void setOutputs(struct State *state)
 {
 	if (state->IsRunning)
