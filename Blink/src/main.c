@@ -31,7 +31,6 @@ void initializeControlRegisters(void)
 	DDRD |= (1<<DDD0); // touch 0
 	DDRD |= (1<<DDD1); // touch 1
 	DDRD |= (1<<DDD2); // touch 2
-	//DDRD |= (1<<DDD3); // touch 3
 	//DDRD &= ~(1<<DDD0); // set as input
 	DDRB &= ~(1<<DDB0); // set as input
 
@@ -45,8 +44,8 @@ void initializeControlRegisters(void)
 //called from initialize
 void initializeTapSequences(struct State *state)
 {
-	initialize1sBlinkSequence(state);
-	//initializeHuracanPSSequence(state);
+	//initialize1sBlinkSequence(state);
+	initializeHuracanPSSequence(state);
 }
 // called from run
 void getUserInput(struct State *state)
@@ -97,12 +96,15 @@ void execute(struct State *state)
 			while(!state->IsComplete_Touch[s] && state->DeltaTimeMS > step->Offset + step->Duration)
 			{
 				// assign the current step to the child step, if a child exists
-				step = step->Next;
+				
 				if (step->Next == NULL)
 				{
 					(*state).IsComplete_Touch[s] = true;
 				}
-				
+				else
+				{
+					step = step->Next;
+				}
 			}
 
 			if (!state->IsComplete_Touch[s]) // the sequence isn't finished yet
@@ -128,10 +130,15 @@ void execute(struct State *state)
 					state->IsComplete_Touch[s] = true;
 				}
 			}
+			else if(state->IsActive_Touch[s])
+			{
+				// make sure the active state is switched off is the sequence is complete
+				state->IsActive_Touch[s] = false;
+			}
 		}
 
 		// now check to see if all sequences are finished
-		bool isComplete = false;
+		bool isComplete = true;
 		for(s = 0; s < 3; s++)
 		{
 			if (!state->IsComplete_Touch[s])
@@ -145,6 +152,7 @@ void execute(struct State *state)
 		{
 			// all the sequences are finished, so take us out of run mode
 			state->IsRunning = false;
+			resetTouchSteps(state);
 		}
 	}
 }
@@ -253,48 +261,48 @@ void initialize1sBlinkSequence(struct State *state)
 
 	tmp = createTap(10000);
 	current->Next = tmp;
-	current = current->Next;
-
 }
 
 // timing sequence for Lambo Huracan Performante Spyder
 void initializeHuracanPSSequence(struct State *state)
 {
 	step current, tmp;
-	int startOffset = 3455 + 300;
+	int startHold = 3400;
+	int startWait = 500;
+	int startOffset = startHold + startWait;
 	// sequence 0 is the start pedal, sequence 1 is the shift paddle and sequence 2 is the N02 button
-	tmp = createTouch(0, 3455);
+	tmp = createTouch(0, startHold);
 	current = tmp;// start immediately after the start button is pressed, remain pressed for 3.455 seconds
 	state->TouchDefault[0] = current;
 
 	// now there is a gap of time to allow the needle to fall to start position
 
 	// now there is a short delay before shifting to second gear, which is the first activation for sequence 1
-	tmp = createTap(startOffset + 572); // shift to 2nd gear **NOTE** NO2 and Shift offsets are relative to start button as well
+	tmp = createTap(startOffset + 400); // shift to 2nd gear **NOTE** NO2 and Shift offsets are relative to start button as well
 	current = tmp;
 	state->TouchDefault[1] = current;
 	// shift to 3rd gear
-	tmp = createTap(startOffset + 1622);
+	tmp = createTap(startOffset + 1472); //1467
 	current->Next = tmp;
 	current = current->Next;
 	// shift to 4th gear
-	tmp = createTap(startOffset + 1728);
+	tmp = createTap(startOffset + 1646); //1633
 	current->Next = tmp;
 	current = current->Next;
 	// shift to 5th gear
-	tmp = createTap(startOffset + 2308);
+	tmp = createTap(startOffset + 2900); //2867
 	current->Next = tmp;
 	current = current->Next;
 	// shift to 6th gear
-	tmp = createTap(startOffset + 3358);
+	tmp = createTap(startOffset + 4000); //3967
 	current->Next = tmp;
 	current = current->Next;
 	// shift to 7th gear
-	tmp = createTap(startOffset + 3812);
+	tmp = createTap(startOffset + 4433); //4450
 	current->Next = tmp;
 	current = current->Next;
 	
-	tmp = createTap(startOffset + 1728); // hit N02 at the same time we shift to 4th
+	tmp = createTap(startOffset + 1733); // 1733 hit N02 at the same time we shift to 4th
 	current = tmp;
 	state->TouchDefault[2] = current;
 }

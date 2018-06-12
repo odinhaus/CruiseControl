@@ -127,8 +127,14 @@
  void resetTouchSteps(struct State *state)
  {
 	 state->Touch[0] = state->TouchDefault[0];
-	 state->Touch[1] = state->TouchDefault[0];
-	 state->Touch[2] = state->TouchDefault[0];
+	 state->Touch[1] = state->TouchDefault[1];
+	 state->Touch[2] = state->TouchDefault[2];
+	 state->IsActive_Touch[0] = false;
+	 state->IsActive_Touch[1] = false;
+	 state->IsActive_Touch[2] = false;
+	 state->IsComplete_Touch[0] = false;
+	 state->IsComplete_Touch[1] = false;
+	 state->IsComplete_Touch[2] = false;
  }
 
  
@@ -137,7 +143,7 @@
 	 step new;
 	 new = (step)malloc(sizeof(struct Step));
 	 new->Offset = offset;
-	 new->Duration = 50;
+	 new->Duration = 25;
 	 new->Next = NULL;
 	 return new;
  }
